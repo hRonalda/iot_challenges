@@ -1,9 +1,9 @@
 import pandas as pd
 
 # 1. Read CSV files
-deep_df = pd.read_csv("deep_sleep.csv")
-sensor_df = pd.read_csv("sensor-read.csv")
-sender_df = pd.read_csv("sender.csv")
+deep_df = pd.read_csv("../data/deep_sleep.csv")
+sensor_df = pd.read_csv("../data/sensor-read.csv")
+sender_df = pd.read_csv("../data/sender.csv")
 
 
 # 2. Convert Data column to numeric
@@ -78,7 +78,7 @@ sender_base_state:  {len(sender_base_state)}
 tx_state:           {len(tx_state)}
 """
 
-with open("csv_analysis_results.txt", "w", encoding="utf-8") as f:
+with open("../results/csv_analysis_results.txt", "w", encoding="utf-8") as f:
     f.write(results_text)
 
 print("\nResults saved to csv_analysis_results.txt")

@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-files = ["deep_sleep.csv", "sender.csv", "sensor-read.csv"]
+files = ["../data/deep_sleep.csv", "../data/sender.csv", "../data/sensor-read.csv"]
 
 for file in files:
     df = pd.read_csv(file)
