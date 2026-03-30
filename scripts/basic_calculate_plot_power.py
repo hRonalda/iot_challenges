@@ -6,7 +6,6 @@ files = ["../data/deep_sleep.csv", "../data/sender.csv", "../data/sensor-read.cs
 for file in files:
     df = pd.read_csv(file)
 
-    # 自动处理 Data 列
     df["Data"] = pd.to_numeric(df["Data"], errors="coerce")
     df = df.dropna(subset=["Data"])
 
