@@ -5,4 +5,4 @@
 - `scripts/`: Python scripts used for analysis
 - `results/`: generated CSV outputs
 - `figures/`: generated plots
-- `Challenge2.pdf`: final report PDF
+- `Challenge2.pdf`: The requirement PDF
