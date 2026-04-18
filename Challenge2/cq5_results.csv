@@ -1,0 +1,9 @@
+Will Topic,Subscriber Port,Has Wildcard
+metaverse/room2/floor4,43797,Yes
+metaverse/room2/floor4,42777,Yes
+metaverse/room2/room2,43797,Yes
+metaverse/room2/room2,42777,Yes
+university/department12/room1/temperature,39551,No
+university/department12/room1/temperature,51743,Yes
+university/department12/room1/temperature,53557,No
+university/department12/room1/temperature,41789,No

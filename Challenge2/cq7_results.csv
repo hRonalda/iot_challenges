@@ -1,0 +1,10 @@
+Frame,TCP Stream,Topic,Wildcard Count
+226,9,university/+/+/deposit,2
+363,5,hospital/+/+/light,2
+460,7,metaverse/+/room1/#,2
+473,10,house/department3/+/+,2
+700,11,metaverse/facility0/+/+,2
+1177,11,hospital/fxlugs/+/#,2
+1915,11,metaverse/+/+/hydraulic_valve,2
+2360,5,factory/+/#,2
+2994,10,house/+/room1/#,2

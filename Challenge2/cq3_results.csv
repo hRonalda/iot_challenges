@@ -1,0 +1,11 @@
+frame_number,time,src_ip,dst_ip,mid,token,info,payload_text,value,is_useless
+4620,222.532566824,127.0.0.1,127.0.0.1,35,89b9,"CON, MID:35, 2.05 Content, TKN:89 b9, /dining_room/temperature, JSON (application/json)","[{""name"": ""dining"", ""value"": ""22.32"", ""time"": ""0127155659""}]",22.32,No
+5098,249.494821853,127.0.0.1,127.0.0.1,38,89b9,"CON, MID:38, 2.05 Content, TKN:89 b9, /dining_room/temperature, JSON (application/json)","[{""name"": ""dining"", ""value"": ""18.85"", ""time"": ""0127155726""}]",18.85,No
+5623,273.825360943,127.0.0.1,127.0.0.1,43,89b9,"CON, MID:43, 2.05 Content, TKN:89 b9, /dining_room/temperature, JSON (application/json)","[{""name"": ""dining"", ""value"": ""25.98"", ""time"": ""0127155750""}]",25.98,No
+8509,300.820865762,127.0.0.1,127.0.0.1,45,89b9,"CON, MID:45, 2.05 Content, TKN:89 b9, /dining_room/temperature, JSON (application/json)","[{""name"": ""dining"", ""value"": ""15.59"", ""time"": ""0127155817""}]",15.59,No
+9414,326.429577051,127.0.0.1,127.0.0.1,49,89b9,"CON, MID:49, 2.05 Content, TKN:89 b9, /dining_room/temperature, JSON (application/json)","[{""name"": ""dining"", ""value"": ""25.35"", ""time"": ""0127155843""}]",25.35,No
+9866,350.769651227,127.0.0.1,127.0.0.1,54,89b9,"CON, MID:54, 2.05 Content, TKN:89 b9, /dining_room/temperature, JSON (application/json)","[{""name"": ""dining"", ""value"": ""26.21"", ""time"": ""0127155907""}]",26.21,No
+10573,394.669233647,127.0.0.1,127.0.0.1,62,89b9,"CON, MID:62, 2.05 Content, TKN:89 b9, /dining_room/temperature, JSON (application/json)","[{""name"": ""dining"", ""value"": ""27.53"", ""time"": ""0127155931""}]",27.53,No
+11220,436.761538592,127.0.0.1,127.0.0.1,74,89b9,"CON, MID:74, 2.05 Content, TKN:89 b9, /dining_room/temperature, JSON (application/json)","[{""name"": ""dining"", ""value"": ""26.98"", ""time"": ""0127155958""}]",26.98,No
+11917,467.521064665,127.0.0.1,127.0.0.1,87,89b9,"CON, MID:87, 2.05 Content, TKN:89 b9, /dining_room/temperature, JSON (application/json)","[{""name"": ""dining"", ""value"": ""25.32"", ""time"": ""0127160033""}]",25.32,No
+12782,498.166885839,127.0.0.1,127.0.0.1,90,89b9,"CON, MID:90, 2.05 Content, TKN:89 b9, /dining_room/temperature, JSON (application/json)","[{""name"": ""dining"", ""value"": ""19.57"", ""time"": ""0127160104""}]",19.57,No

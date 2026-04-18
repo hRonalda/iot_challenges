@@ -1,0 +1,8 @@
+resource,unsuccessful_post_count,unsuccessful_put_count,x_equals_y_and_x_gt_0
+basic,2,1,False
+dining_room,4,4,True
+hello_post,0,0,False
+hello_world,3,0,False
+living_room,0,1,False
+main_door,1,2,False
+test,2,0,False

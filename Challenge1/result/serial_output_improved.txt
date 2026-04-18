@@ -1,0 +1,208 @@
+[wokwi-local] serial monitor ready
+[wokwi-local] bootstrap error: Error: Minified React error #418; visit https://react.dev/errors/418?args[]= for the full message or use the non-minified dev environment for full errors and additional helpful warnings.
+[wokwi-local] Start command sent to simulator
+[wokwi-local] Using private IoT Gateway ws://localhost:3002/__gateway
+ets Jul 29 2019 12:21:46
+
+rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+configsip: 0, SPIWP:0xee
+clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+mode:DIO, clock div:2
+load:0x3fff0030,len:1156
+load:0x40078000,len:11456
+ho 0 tail 12 room 4
+load:0x40080400,len:2972
+entry 0x400805dc
+SIM MODE: periodic loop every 8s (no deep sleep).
+Tip: keep lux/motion stable -> you should see SKIP TX after first run.
+
+========== Run 1 ==========
+
+MotionNow: 1 | Lux: 904.58 | LevelNow: 2 (L2_INDOOR)
+LastMotion: 1 | LastLevel: 2
+needSend: YES | motionChanged: YES | levelChanged: YES
+Sensor Read Time: 1104 us
+Message Build Time: 458 us
+WiFi ON Time: 215.954 ms
+Transmission Time: 561 us
+WiFi OFF Time: 9613 us
+Sent: MOTION_DETECTED-LEVEL:2-LUX:904
+Total Active Time (sim cycle, no deep sleep): 227.690 ms
+Cycle Period (sim): 8227.690 ms
+
+========== Run 2 ==========
+
+MotionNow: 0 | Lux: 4339.18 | LevelNow: 3 (L3_OUTDOOR)
+LastMotion: 0 | LastLevel: 3
+needSend: YES | motionChanged: YES | levelChanged: YES
+Sensor Read Time: 937 us
+Message Build Time: 494 us
+WiFi ON Time: 29.621 ms
+Transmission Time: 546 us
+WiFi OFF Time: 8625 us
+Sent: MOTION_NOT_DETECTED-LEVEL:3-LUX:4339
+Total Active Time (sim cycle, no deep sleep): 40.223 ms
+Cycle Period (sim): 8040.223 ms
+
+========== Run 3 ==========
+
+MotionNow: 1 | Lux: 4339.18 | LevelNow: 3 (L3_OUTDOOR)
+LastMotion: 1 | LastLevel: 3
+needSend: YES | motionChanged: YES | levelChanged: NO
+Sensor Read Time: 937 us
+Message Build Time: 533 us
+WiFi ON Time: 29.582 ms
+Transmission Time: 541 us
+WiFi OFF Time: 8622 us
+Sent: MOTION_DETECTED-LEVEL:3-LUX:4339
+Total Active Time (sim cycle, no deep sleep): 40.215 ms
+Cycle Period (sim): 8040.215 ms
+
+========== Run 4 ==========
+
+MotionNow: 0 | Lux: 7916.54 | LevelNow: 3 (L3_OUTDOOR)
+LastMotion: 0 | LastLevel: 3
+needSend: YES | motionChanged: YES | levelChanged: NO
+Sensor Read Time: 917 us
+Message Build Time: 495 us
+WiFi ON Time: 29.807 ms
+Transmission Time: 447 us
+WiFi OFF Time: 8446 us
+Sent: MOTION_NOT_DETECTED-LEVEL:3-LUX:7916
+Total Active Time (sim cycle, no deep sleep): 40.112 ms
+Cycle Period (sim): 8040.112 ms
+
+========== Run 5 ==========
+
+MotionNow: 0 | Lux: 7916.54 | LevelNow: 3 (L3_OUTDOOR)
+LastMotion: 0 | LastLevel: 3
+needSend: NO | motionChanged: NO | levelChanged: NO
+Sensor Read Time: 917 us
+SKIP TX: no meaningful change (WiFi stayed OFF).
+Total Active Time (sim cycle, no deep sleep): 0.917 ms
+Cycle Period (sim): 8000.917 ms
+
+========== Run 6 ==========
+
+MotionNow: 0 | Lux: 17345.72 | LevelNow: 3 (L3_OUTDOOR)
+LastMotion: 0 | LastLevel: 3
+needSend: NO | motionChanged: NO | levelChanged: NO
+Sensor Read Time: 911 us
+SKIP TX: no meaningful change (WiFi stayed OFF).
+Total Active Time (sim cycle, no deep sleep): 0.911 ms
+Cycle Period (sim): 8000.911 ms
+
+========== Run 7 ==========
+
+MotionNow: 0 | Lux: 17345.72 | LevelNow: 3 (L3_OUTDOOR)
+LastMotion: 0 | LastLevel: 3
+needSend: NO | motionChanged: NO | levelChanged: NO
+Sensor Read Time: 911 us
+SKIP TX: no meaningful change (WiFi stayed OFF).
+Total Active Time (sim cycle, no deep sleep): 0.911 ms
+Cycle Period (sim): 8000.911 ms
+
+========== Run 8 ==========
+
+MotionNow: 0 | Lux: 27460.84 | LevelNow: 4 (L4_SUN)
+LastMotion: 0 | LastLevel: 4
+needSend: YES | motionChanged: NO | levelChanged: YES
+Sensor Read Time: 930 us
+Message Build Time: 498 us
+WiFi ON Time: 29.790 ms
+Transmission Time: 567 us
+WiFi OFF Time: 8618 us
+Sent: MOTION_NOT_DETECTED-LEVEL:4-LUX:27460
+Total Active Time (sim cycle, no deep sleep): 40.403 ms
+Cycle Period (sim): 8040.403 ms
+
+========== Run 9 ==========
+
+MotionNow: 0 | Lux: 27460.84 | LevelNow: 4 (L4_SUN)
+LastMotion: 0 | LastLevel: 4
+needSend: NO | motionChanged: NO | levelChanged: NO
+Sensor Read Time: 930 us
+SKIP TX: no meaningful change (WiFi stayed OFF).
+Total Active Time (sim cycle, no deep sleep): 0.930 ms
+Cycle Period (sim): 8000.930 ms
+
+========== Run 10 ==========
+
+MotionNow: 0 | Lux: 27460.84 | LevelNow: 4 (L4_SUN)
+LastMotion: 0 | LastLevel: 4
+needSend: NO | motionChanged: NO | levelChanged: NO
+Sensor Read Time: 931 us
+SKIP TX: no meaningful change (WiFi stayed OFF).
+Total Active Time (sim cycle, no deep sleep): 0.931 ms
+Cycle Period (sim): 8000.931 ms
+
+========== Run 11 ==========
+
+MotionNow: 0 | Lux: 50322.46 | LevelNow: 4 (L4_SUN)
+LastMotion: 0 | LastLevel: 4
+needSend: NO | motionChanged: NO | levelChanged: NO
+Sensor Read Time: 911 us
+SKIP TX: no meaningful change (WiFi stayed OFF).
+Total Active Time (sim cycle, no deep sleep): 0.911 ms
+Cycle Period (sim): 8000.911 ms
+
+========== Run 12 ==========
+
+MotionNow: 0 | Lux: 50322.46 | LevelNow: 4 (L4_SUN)
+LastMotion: 0 | LastLevel: 4
+needSend: NO | motionChanged: NO | levelChanged: NO
+Sensor Read Time: 911 us
+SKIP TX: no meaningful change (WiFi stayed OFF).
+Total Active Time (sim cycle, no deep sleep): 0.911 ms
+Cycle Period (sim): 8000.911 ms
+
+========== Run 13 ==========
+
+MotionNow: 0 | Lux: 54.64 | LevelNow: 1 (L1_DIM)
+LastMotion: 0 | LastLevel: 1
+needSend: YES | motionChanged: NO | levelChanged: YES
+Sensor Read Time: 919 us
+Message Build Time: 488 us
+WiFi ON Time: 28.809 ms
+Transmission Time: 447 us
+WiFi OFF Time: 8447 us
+Sent: MOTION_NOT_DETECTED-LEVEL:1-LUX:54
+Total Active Time (sim cycle, no deep sleep): 39.110 ms
+Cycle Period (sim): 8039.110 ms
+
+========== Run 14 ==========
+
+MotionNow: 0 | Lux: 172.92 | LevelNow: 1 (L1_DIM)
+LastMotion: 0 | LastLevel: 1
+needSend: NO | motionChanged: NO | levelChanged: NO
+Sensor Read Time: 920 us
+SKIP TX: no meaningful change (WiFi stayed OFF).
+Total Active Time (sim cycle, no deep sleep): 0.920 ms
+Cycle Period (sim): 8000.920 ms
+
+========== Run 15 ==========
+
+MotionNow: 0 | Lux: 172.92 | LevelNow: 1 (L1_DIM)
+LastMotion: 0 | LastLevel: 1
+needSend: NO | motionChanged: NO | levelChanged: NO
+Sensor Read Time: 920 us
+SKIP TX: no meaningful change (WiFi stayed OFF).
+Total Active Time (sim cycle, no deep sleep): 0.920 ms
+Cycle Period (sim): 8000.920 ms
+
+========== Run 16 ==========
+
+MotionNow: 0 | Lux: 1310.26 | LevelNow: 2 (L2_INDOOR)
+LastMotion: 0 | LastLevel: 2
+needSend: YES | motionChanged: NO | levelChanged: YES
+Sensor Read Time: 919 us
+Message Build Time: 495 us
+WiFi ON Time: 29.802 ms
+Transmission Time: 443 us
+WiFi OFF Time: 8434 us
+Sent: MOTION_NOT_DETECTED-LEVEL:2-LUX:1310
+Total Active Time (sim cycle, no deep sleep): 40.093 ms
+Cycle Period (sim): 8040.093 ms
+
+========== Run 17 ==========
+Reached MAX_RUNS. Stop.
