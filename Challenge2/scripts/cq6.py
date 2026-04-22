@@ -1,11 +1,13 @@
 import subprocess
 import csv
 
-PCAP = "B.pcapng"
-LOCAL_IPS = {"127.0.0.1", "::1"}
+PCAP = "../captures/B.pcapng"
+
+HIVEMQ_IPS = ["18.192.151.104", "35.158.34.213", "35.158.43.69"]
+MQTT_VERSIONS = [3, 4, 5]
 
 
-def run_tshark(fields, display_filter):
+def run_tshark_fields(fields, display_filter):
     cmd = [
         "tshark",
         "-r", PCAP,
@@ -19,161 +21,207 @@ def run_tshark(fields, display_filter):
     for f in fields:
         cmd += ["-e", f]
 
-    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-    return [line.split("\t") for line in result.stdout.splitlines()]
+    result = subprocess.run(cmd, capture_output=True, text=True)
+
+    if result.returncode != 0:
+        print("TSHARK FAILED")
+        print("Command:")
+        print(" ".join(cmd))
+        print("\nSTDERR:")
+        print(result.stderr)
+        raise RuntimeError("tshark failed")
+
+    rows = []
+    for line in result.stdout.splitlines():
+        rows.append(line.split("\t"))
+    return rows
 
 
-def is_retained_erase(qos_str, msg_len_str, topic_len_str):
-    try:
-        qos = int(qos_str)
-        msg_len = int(msg_len_str)
-        topic_len = int(topic_len_str)
-    except Exception:
-        return False
+def run_tshark_verbose(display_filter):
+    cmd = [
+        "tshark",
+        "-r", PCAP,
+        "-Y", display_filter,
+        "-V",
+    ]
 
-    diff = msg_len - topic_len
+    result = subprocess.run(cmd, capture_output=True, text=True)
 
-    if qos == 0 and diff == 2:
-        return True
-    if qos in (1, 2) and diff == 4:
-        return True
-    return False
+    if result.returncode != 0:
+        print("TSHARK FAILED")
+        print("Command:")
+        print(" ".join(cmd))
+        print("\nSTDERR:")
+        print(result.stderr)
+        raise RuntimeError("tshark failed")
+
+    return result.stdout
+
+
+def broker_ip_filter():
+    return "(" + " || ".join(f"ip.dst=={ip}" for ip in HIVEMQ_IPS) + ")"
+
+
+def packet_has_missing_message(frame_no):
+    verbose_text = run_tshark_verbose(f"frame.number=={frame_no}")
+    return "Message: <MISSING>" in verbose_text
 
 
 def main():
-    rows = run_tshark(
-        [
-            "frame.number",
-            "ip.src",
-            "ip.dst",
-            "ipv6.src",
-            "ipv6.dst",
-            "tcp.stream",
-            "tcp.srcport",
-            "tcp.dstport",
-            "mqtt.topic",
-            "mqtt.topic_len",
-            "mqtt.len",
-            "mqtt.qos",
-        ],
-        'mqtt.msgtype == 3 && mqtt.retain == 1'
-    )
+    ip_filter = broker_ip_filter()
 
-    candidate_packets = []
-    candidate_streams = set()
+    cq6a_clients = set()
+    cq6a_details = []
 
-    for row in rows:
-        row += [""] * (12 - len(row))
-        (
-            frame_no, ip_src, ip_dst, ipv6_src, ipv6_dst,
-            tcp_stream, tcp_srcport, tcp_dstport,
-            topic, topic_len, msg_len, qos
-        ) = row
-
-        dst = ip_dst if ip_dst else ipv6_dst
-        src = ip_src if ip_src else ipv6_src
-
-        if dst in LOCAL_IPS:
-            continue
-
-        if not is_retained_erase(qos, msg_len, topic_len):
-            continue
-
-        candidate_packets.append({
-            "frame": frame_no,
-            "src": src,
-            "dst": dst,
-            "stream": tcp_stream,
-            "srcport": tcp_srcport,
-            "dstport": tcp_dstport,
-            "topic": topic,
-            "topic_len": topic_len,
-            "msg_len": msg_len,
-            "qos": qos,
-            "diff": int(msg_len) - int(topic_len)
-        })
-        if tcp_stream:
-            candidate_streams.add(tcp_stream)
-
-    print("Candidate retained-erase packets:")
-    for pkt in candidate_packets:
-        print(pkt)
-
-    print("\nCandidate streams:")
-    print(sorted(candidate_streams, key=lambda x: int(x) if x.isdigit() else x))
-
-    with open("cq6_qos_candidates.csv", "w", newline="") as f:
+    with open("../results/cq6a_results.csv", "w", newline="") as f:
         writer = csv.writer(f)
         writer.writerow([
-            "Frame", "Src", "Dst", "TCP Stream", "Src Port", "Dst Port",
-            "Topic", "Topic Length", "Msg Len", "QoS", "Diff"
+            "MQTT Version",
+            "CONNECT Frame",
+            "Stream",
+            "Client ID",
+            "Client ID Length",
+            "Broker IP",
+            "Publish Frame",
+            "Topic",
+            "Message Missing",
+            "Counted for CQ6a",
+            "Counted for CQ6b"
         ])
-        for pkt in candidate_packets:
-            writer.writerow([
-                pkt["frame"], pkt["src"], pkt["dst"], pkt["stream"],
-                pkt["srcport"], pkt["dstport"], pkt["topic"],
-                pkt["topic_len"], pkt["msg_len"], pkt["qos"], pkt["diff"]
-            ])
 
-    # map stream -> client
-    stream_to_client = {}
+        for ver in MQTT_VERSIONS:
+            connect_filter = (
+                f"mqtt.msgtype==1 && mqtt.ver=={ver} && tcp.dstport==1883 && {ip_filter}"
+            )
 
-    if candidate_streams:
-        stream_filter = " || ".join([f"tcp.stream == {s}" for s in candidate_streams])
-        connect_rows = run_tshark(
-            [
-                "frame.number",
-                "tcp.stream",
-                "mqtt.clientid",
-                "mqtt.clientid_len",
-            ],
-            f'mqtt.msgtype == 1 && ({stream_filter})'
+            connect_rows = run_tshark_fields(
+                ["frame.number", "tcp.stream", "mqtt.clientid", "ip.dst"],
+                connect_filter
+            )
+
+            print(f"\n=== MQTT version {ver} CONNECT packets ===")
+
+            for row in connect_rows:
+                if len(row) < 4:
+                    continue
+
+                connect_frame, stream_id, client_id, broker_ip = row
+
+                if not stream_id or not client_id:
+                    continue
+
+                client_len = len(client_id)
+
+                print(
+                    f"CONNECT frame={connect_frame}, stream={stream_id}, "
+                    f"client_id={client_id}, client_len={client_len}, broker_ip={broker_ip}"
+                )
+
+                publish_filter = (
+                    f"mqtt.msgtype==3 && mqtt.retain==1 && tcp.dstport==1883 "
+                    f"&& {ip_filter} && tcp.stream=={stream_id}"
+                )
+
+                pub_rows = run_tshark_fields(
+                    ["frame.number", "mqtt.topic"],
+                    publish_filter
+                )
+
+                if not pub_rows:
+                    print(f"  -> No retained PUBLISH packets in stream {stream_id}")
+                    continue
+
+                print(f"  -> Retained PUBLISH packets found: {len(pub_rows)}")
+
+                missing_frames = []
+
+                for pub_row in pub_rows:
+                    frame_pub = pub_row[0] if len(pub_row) > 0 else ""
+                    topic = pub_row[1] if len(pub_row) > 1 else ""
+
+                    is_missing = packet_has_missing_message(frame_pub)
+
+                    if is_missing:
+                        missing_frames.append((frame_pub, topic))
+
+                if missing_frames:
+                    cq6a_clients.add(client_id)
+
+                    print(f"  -> CQ6a match in stream {stream_id}")
+                    for frame_pub, topic in missing_frames:
+                        print(f"     missing frame={frame_pub}, topic={topic}")
+
+                    counted_6b = "Yes" if client_len > 7 else "No"
+
+                    cq6a_details.append({
+                        "version": ver,
+                        "connect_frame": connect_frame,
+                        "stream": stream_id,
+                        "client_id": client_id,
+                        "client_len": client_len,
+                        "broker_ip": broker_ip,
+                        "missing_frames": missing_frames,
+                        "counted_6b": counted_6b,
+                    })
+
+                    for frame_pub, topic in missing_frames:
+                        writer.writerow([
+                            ver,
+                            connect_frame,
+                            stream_id,
+                            client_id,
+                            client_len,
+                            broker_ip,
+                            frame_pub,
+                            topic,
+                            "Yes",
+                            "Yes",
+                            counted_6b
+                        ])
+                else:
+                    print(f"  -> No 'Message: <MISSING>' found in stream {stream_id}")
+
+                    for pub_row in pub_rows:
+                        frame_pub = pub_row[0] if len(pub_row) > 0 else ""
+                        topic = pub_row[1] if len(pub_row) > 1 else ""
+                        writer.writerow([
+                            ver,
+                            connect_frame,
+                            stream_id,
+                            client_id,
+                            client_len,
+                            broker_ip,
+                            frame_pub,
+                            topic,
+                            "No",
+                            "No",
+                            "No"
+                        ])
+
+    cq6b_clients = {client_id for client_id in cq6a_clients if len(client_id) > 7}
+
+    print("\n=== CQ6a RESULT ===")
+    print("Clients counted for CQ6a:")
+    for client_id in sorted(cq6a_clients):
+        print(" ", client_id)
+    print(f"\nCQ6a answer = {len(cq6a_clients)}")
+
+    print("\n=== CQ6b RESULT ===")
+    print("Clients from CQ6a with client ID length > 7:")
+    for client_id in sorted(cq6b_clients):
+        print(f"  {client_id} (length={len(client_id)})")
+    print(f"\nCQ6b answer = {len(cq6b_clients)}")
+
+    print("\nDetails of matched clients:")
+    for item in cq6a_details:
+        print(
+            f"  version={item['version']}, connect_frame={item['connect_frame']}, "
+            f"stream={item['stream']}, client_id={item['client_id']}, "
+            f"length={item['client_len']}, broker_ip={item['broker_ip']}, "
+            f"CQ6b={item['counted_6b']}"
         )
-
-        for row in connect_rows:
-            row += [""] * (4 - len(row))
-            frame_no, tcp_stream, client_id, client_len = row
-            if tcp_stream and tcp_stream not in stream_to_client:
-                stream_to_client[tcp_stream] = {
-                    "frame": frame_no,
-                    "client_id": client_id,
-                    "client_len": client_len,
-                }
-
-    print("\nStream to client mapping:")
-    for s, info in stream_to_client.items():
-        print(s, info)
-
-    unique_clients = {}
-    for s in candidate_streams:
-        if s in stream_to_client:
-            cid = stream_to_client[s]["client_id"]
-            if cid == "":
-                cid = f"<empty-id-stream-{s}>"
-            unique_clients[cid] = stream_to_client[s]
-
-    print("\nUnique clients that erased retained values:")
-    for cid, info in unique_clients.items():
-        print(cid, info)
-
-    cq6a = len(unique_clients)
-
-    long_clients = []
-    for cid, info in unique_clients.items():
-        try:
-            cid_len = int(info["client_len"])
-        except Exception:
-            cid_len = 0
-        if cid_len > 7:
-            long_clients.append((cid, cid_len))
-
-    print("\nClients with client ID length > 7:")
-    for cid, cid_len in long_clients:
-        print(cid, cid_len)
-
-    print(f"\nCQ6a answer = {cq6a}")
-    print(f"CQ6b answer = {len(long_clients)}")
-    print("\nCSV file 'cq6_qos_candidates.csv' generated.")
+        for frame_pub, topic in item["missing_frames"]:
+            print(f"     missing frame={frame_pub}, topic={topic}")
 
 
 if __name__ == "__main__":
