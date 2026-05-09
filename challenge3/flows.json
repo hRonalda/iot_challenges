@@ -1,0 +1,844 @@
+[
+    {
+        "id": "fec7735c63189767",
+        "type": "tab",
+        "label": "Flow 2",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "fdb58ac77e3f8865",
+        "type": "mqtt in",
+        "z": "fec7735c63189767",
+        "name": "",
+        "topic": "challenge3/id_generator",
+        "qos": "0",
+        "datatype": "auto-detect",
+        "broker": "2ed18e4fb28673fb",
+        "nl": false,
+        "rap": true,
+        "rh": 0,
+        "inputs": 0,
+        "x": 130,
+        "y": 240,
+        "wires": [
+            [
+                "f146872bf5f3bb5a",
+                "3e0b95c47b49fab8"
+            ]
+        ]
+    },
+    {
+        "id": "3e0b95c47b49fab8",
+        "type": "function",
+        "z": "fec7735c63189767",
+        "name": "Compute N",
+        "func": "let id = msg.payload.id;\n\nmsg.sub_id = id;\nmsg.N = id % 5218;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 390,
+        "y": 300,
+        "wires": [
+            [
+                "72d6a368b12dc78e"
+            ]
+        ]
+    },
+    {
+        "id": "72d6a368b12dc78e",
+        "type": "file in",
+        "z": "fec7735c63189767",
+        "name": "Read challenge3.csv",
+        "filename": "/Users/rongh/Desktop/programming/year2_semester2/IOT/Challenges_2026/challenge3/challenge3.csv",
+        "filenameType": "str",
+        "format": "utf8",
+        "chunk": false,
+        "sendError": false,
+        "encoding": "none",
+        "allProps": false,
+        "x": 620,
+        "y": 300,
+        "wires": [
+            [
+                "1535f1a064a116e0"
+            ]
+        ]
+    },
+    {
+        "id": "55b41c9ce97661c4",
+        "type": "function",
+        "z": "fec7735c63189767",
+        "name": "Find packet N",
+        "func": "let rows = msg.payload;   // array of objects from CSV node\n\nlet found = rows.find(r => Number(r[\"Packet Number\"]) === msg.N);\n\nif (!found) {\n    return null;\n}\n\nmsg.csv_row = found;\nmsg.payload = found;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 200,
+        "y": 440,
+        "wires": [
+            [
+                "5dbdbc3119bc828e",
+                "068152104b03940b",
+                "212b3e5ece8ae3e9"
+            ]
+        ]
+    },
+    {
+        "id": "5dbdbc3119bc828e",
+        "type": "debug",
+        "z": "fec7735c63189767",
+        "name": "complete msg object",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 600,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "413bfd8880fd1e8c",
+        "type": "inject",
+        "z": "fec7735c63189767",
+        "name": "Every 1 sec",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "1",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 60,
+        "wires": [
+            [
+                "fa3dd92baabf5f62"
+            ]
+        ]
+    },
+    {
+        "id": "fa3dd92baabf5f62",
+        "type": "function",
+        "z": "fec7735c63189767",
+        "name": "Generate ID",
+        "func": "// input is in the msg\n// Q1: Each message should contain in the payload a JSON-formatted string with a random\n// number(id) between 0 and 30000, and the time at which the message is generated(UNIX timestamp)\n\n// flow.set(\"id_counter\", 0);\n// flow.set(\"filtered_counter\", 0);\n// flow.set(\"outgoing_cost_table\", {});\n// return null;\n\n\n\n\nlet counter = flow.get(\"id_counter\") || 0;\n\nif (counter >= 200) {\n    return null;\n}\n\ncounter += 1;\nflow.set(\"id_counter\", counter);\n\nlet id = Math.floor(Math.random() * 30001);\nlet timestamp = Math.floor(Date.now() / 1000);\n\nmsg.payload = JSON.stringify({\n    id: id,\n    timestamp: timestamp\n});\n\nmsg.csv_row = {\n    no: counter,\n    id: id,\n    timestamp: timestamp\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 310,
+        "y": 60,
+        "wires": [
+            [
+                "1fe04c21bca40abd",
+                "904e51c711b40687"
+            ]
+        ]
+    },
+    {
+        "id": "1fe04c21bca40abd",
+        "type": "mqtt out",
+        "z": "fec7735c63189767",
+        "name": "",
+        "topic": "challenge3/id_generator",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "2ed18e4fb28673fb",
+        "x": 550,
+        "y": 20,
+        "wires": []
+    },
+    {
+        "id": "904e51c711b40687",
+        "type": "function",
+        "z": "fec7735c63189767",
+        "name": "Make id_log row",
+        "func": "let row = msg.csv_row.no + \",\" + msg.csv_row.id + \",\" + msg.csv_row.timestamp + \"\\n\";\nmsg.payload = row;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 100,
+        "wires": [
+            [
+                "e2b4d276d452ca90"
+            ]
+        ]
+    },
+    {
+        "id": "e2b4d276d452ca90",
+        "type": "file",
+        "z": "fec7735c63189767",
+        "name": "Write id_log.csv",
+        "filename": "/Users/rongh/Desktop/programming/year2_semester2/IOT/Challenges_2026/challenge3/id_log.csv",
+        "filenameType": "str",
+        "appendNewline": false,
+        "createDir": false,
+        "overwriteFile": "false",
+        "encoding": "none",
+        "x": 700,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1535f1a064a116e0",
+        "type": "csv",
+        "z": "fec7735c63189767",
+        "name": "",
+        "spec": "rfc",
+        "sep": ",",
+        "hdrin": true,
+        "hdrout": "none",
+        "multi": "mult",
+        "ret": "\\r\\n",
+        "temp": "",
+        "skip": "0",
+        "strings": false,
+        "include_empty_strings": "",
+        "include_null_values": "",
+        "x": 850,
+        "y": 300,
+        "wires": [
+            [
+                "55b41c9ce97661c4"
+            ]
+        ]
+    },
+    {
+        "id": "f146872bf5f3bb5a",
+        "type": "debug",
+        "z": "fec7735c63189767",
+        "name": "debug 1",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 380,
+        "y": 200,
+        "wires": []
+    },
+    {
+        "id": "068152104b03940b",
+        "type": "function",
+        "z": "fec7735c63189767",
+        "name": "Check ZBEE_ZCL and Build Payload",
+        "func": "let row = msg.csv_row || msg.payload;\n\nlet cmd = row[\"Command String\"];\n\nif (!cmd || !cmd.includes(\"ZBEE_ZCL\")) {\n    return null;\n}\n\nlet devName = row[\"Device Name ZigBee Source\"];\n\nmsg.topic = \"ZigBee/\" + devName;\n\nmsg.payload = JSON.stringify({\n    timestamp: Math.floor(Date.now() / 1000),\n    id: msg.sub_id,\n    \"wpan.src\": row[\"Source Address\"],\n    \"wpan.dst\": row[\"Destination Address\"],\n    \"zbee.src\": row[\"Source Address ZigBee\"],\n    \"zbee.dst\": row[\"Destination Address ZigBee\"],\n    topic: \"ZigBee/\" + devName,\n    payload: cmd\n});\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 650,
+        "y": 460,
+        "wires": [
+            [
+                "472292e5077670f0",
+                "76695cab7c46c342"
+            ]
+        ]
+    },
+    {
+        "id": "d19baaf7bb449a68",
+        "type": "mqtt out",
+        "z": "fec7735c63189767",
+        "name": "Publish ZBEE_ZCL",
+        "topic": "",
+        "qos": "0",
+        "retain": "false",
+        "respTopic": "",
+        "contentType": "",
+        "userProps": "",
+        "correl": "",
+        "expiry": "",
+        "broker": "2ed18e4fb28673fb",
+        "x": 1190,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "472292e5077670f0",
+        "type": "delay",
+        "z": "fec7735c63189767",
+        "name": "Rate limit 10/min",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "10",
+        "nbRateUnits": "1",
+        "rateUnits": "minute",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 950,
+        "y": 400,
+        "wires": [
+            [
+                "d19baaf7bb449a68"
+            ]
+        ]
+    },
+    {
+        "id": "76695cab7c46c342",
+        "type": "function",
+        "z": "fec7735c63189767",
+        "name": "Extract RMS Elements",
+        "func": "let row = msg.csv_row || msg.payload;\nlet cmd = row[\"Command String\"];\n\nif (!cmd) return null;\n\nlet obj;\ntry {\n    obj = Function(\"return \" + cmd)();\n} catch (e) {\n    node.warn(\"Cannot parse Command String\");\n    return null;\n}\n\nlet attrs = obj[\"Attribute\"];\nlet statuses = obj[\"Status\"];\nlet dataTypes = obj[\"Data Type\"];\n\nif (!Array.isArray(attrs)) attrs = [attrs];\nif (!Array.isArray(statuses)) statuses = [statuses];\nif (!Array.isArray(dataTypes)) dataTypes = [dataTypes];\n\nlet values = [];\n\nif (obj[\"Int16\"] !== undefined) {\n    values = values.concat(Array.isArray(obj[\"Int16\"]) ? obj[\"Int16\"] : [obj[\"Int16\"]]);\n}\n\nif (obj[\"Uint16\"] !== undefined) {\n    values = values.concat(Array.isArray(obj[\"Uint16\"]) ? obj[\"Uint16\"] : [obj[\"Uint16\"]]);\n}\n\nlet wanted = [\"Active Power\", \"RMS Current\", \"RMS Voltage\"];\nlet results = [];\n\nfor (let i = 0; i < attrs.length; i++) {\n    let cleanAttr = String(attrs[i]).replace(/\\s*\\(0x[0-9a-fA-F]+\\)/, \"\");\n\n    if (!wanted.includes(cleanAttr)) continue;\n\n    let cleanStatus = String(statuses[i] || \"\").replace(/\\s*\\(0x[0-9a-fA-F]+\\)/, \"\");\n    let cleanType = String(dataTypes[i] || \"\").replace(/\\s*\\(0x[0-9a-fA-F]+\\)/, \"\");\n    let rawValue = values[i] !== undefined ? String(values[i]) : \"\";\n    let cleanValue = rawValue.replace(/\\s*\\(0x[0-9a-fA-F]+\\)/, \"\");\n\n    if (!cleanStatus || !cleanType || cleanValue === \"\") {\n        continue;\n    }\n\n    results.push({\n        timestamp: Math.floor(Date.now() / 1000),\n        sequence: obj[\"Sequence Number\"] || \"\",\n        attribute: cleanAttr,\n        status: cleanStatus,\n        datatype: cleanType,\n        value: cleanValue\n    });\n}\n\nif (results.length === 0) return null;\n\nmsg.payload = results;\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 960,
+        "y": 500,
+        "wires": [
+            [
+                "ad582ee95ff4a94a",
+                "9099c49963dc34ba"
+            ]
+        ]
+    },
+    {
+        "id": "ad582ee95ff4a94a",
+        "type": "split",
+        "z": "fec7735c63189767",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "property": "payload",
+        "x": 1150,
+        "y": 500,
+        "wires": [
+            [
+                "c55f85fb75efc640"
+            ]
+        ]
+    },
+    {
+        "id": "c55f85fb75efc640",
+        "type": "function",
+        "z": "fec7735c63189767",
+        "name": "Make filtered row",
+        "func": "let counter = flow.get(\"filtered_counter\") || 0;\n\ncounter += 1;\n\nflow.set(\"filtered_counter\", counter);\n\nmsg.payload = {\n    \"No.\": counter,\n    \"Timestamp\": msg.payload.timestamp,\n    \"Sequence Number\": msg.payload.sequence,\n    \"Attribute\": msg.payload.attribute,\n    \"Status\": msg.payload.status,\n    \"Data Type\": msg.payload.datatype,\n    \"Data Value\": msg.payload.value\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 950,
+        "y": 600,
+        "wires": [
+            [
+                "4f330ba3b313dc41",
+                "e629d4d6ec266996",
+                "954236295b82a81e"
+            ]
+        ]
+    },
+    {
+        "id": "4f330ba3b313dc41",
+        "type": "csv",
+        "z": "fec7735c63189767",
+        "name": "",
+        "spec": "rfc",
+        "sep": ",",
+        "hdrin": "",
+        "hdrout": "none",
+        "multi": "one",
+        "ret": "\\n",
+        "temp": "No.,Timestamp,Sequence Number,Attribute,Status,Data Type,Data Value",
+        "skip": "0",
+        "strings": true,
+        "include_empty_strings": "",
+        "include_null_values": "",
+        "x": 1170,
+        "y": 580,
+        "wires": [
+            [
+                "25804006e0c6f2cc"
+            ]
+        ]
+    },
+    {
+        "id": "25804006e0c6f2cc",
+        "type": "file",
+        "z": "fec7735c63189767",
+        "name": "Write filtered_elems.csv",
+        "filename": "/Users/rongh/Desktop/programming/year2_semester2/IOT/Challenges_2026/challenge3/filtered_elems.csv",
+        "filenameType": "str",
+        "appendNewline": false,
+        "createDir": false,
+        "overwriteFile": "false",
+        "encoding": "none",
+        "x": 1430,
+        "y": 580,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "e629d4d6ec266996",
+        "type": "function",
+        "z": "fec7735c63189767",
+        "name": "RMS Current",
+        "func": "if (msg.payload.Attribute !== \"RMS Current\") {\n    return null;\n}\n\nmsg.topic = \"RMS Current\";\nmsg.payload = Number(msg.payload[\"Data Value\"]);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1190,
+        "y": 640,
+        "wires": [
+            [
+                "625abc9dc2f13cd9"
+            ]
+        ]
+    },
+    {
+        "id": "625abc9dc2f13cd9",
+        "type": "ui_chart",
+        "z": "fec7735c63189767",
+        "name": "RMS_current_chart",
+        "group": "8edb1376f7621b83",
+        "order": 0,
+        "width": 0,
+        "height": 0,
+        "label": "RMS Current",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 1430,
+        "y": 640,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "573893bdb259893c",
+        "type": "ui_chart",
+        "z": "fec7735c63189767",
+        "name": "RMS_voltage_chart",
+        "group": "8edb1376f7621b83",
+        "order": 1,
+        "width": 0,
+        "height": 0,
+        "label": "RMS Voltage",
+        "chartType": "line",
+        "legend": "false",
+        "xformat": "HH:mm:ss",
+        "interpolate": "linear",
+        "nodata": "",
+        "dot": false,
+        "ymin": "",
+        "ymax": "",
+        "removeOlder": 1,
+        "removeOlderPoints": "",
+        "removeOlderUnit": "3600",
+        "cutout": 0,
+        "useOneColor": false,
+        "useUTC": false,
+        "colors": [
+            "#1f77b4",
+            "#aec7e8",
+            "#ff7f0e",
+            "#2ca02c",
+            "#98df8a",
+            "#d62728",
+            "#ff9896",
+            "#9467bd",
+            "#c5b0d5"
+        ],
+        "outputs": 1,
+        "useDifferentColor": false,
+        "className": "",
+        "x": 1430,
+        "y": 720,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "954236295b82a81e",
+        "type": "function",
+        "z": "fec7735c63189767",
+        "name": "RMS Voltage",
+        "func": "if (msg.payload.Attribute !== \"RMS Voltage\") {\n    return null;\n}\n\nmsg.topic = \"RMS Voltage\";\nmsg.payload = Number(msg.payload[\"Data Value\"]);\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1190,
+        "y": 720,
+        "wires": [
+            [
+                "573893bdb259893c"
+            ]
+        ]
+    },
+    {
+        "id": "212b3e5ece8ae3e9",
+        "type": "function",
+        "z": "fec7735c63189767",
+        "name": "Extract Link Status Costs",
+        "func": "let row = msg.csv_row || msg.payload;\n\nlet packetType = row[\"Packet Type\"];\nlet cmd = row[\"Command String\"];\n\nif (!packetType || !packetType.includes(\"Link Status\")) {\n    return null;\n}\n\nif (!cmd) {\n    return null;\n}\n\nlet obj;\ntry {\n    obj = Function(\"return \" + cmd)();\n} catch (e) {\n    node.warn(\"Cannot parse Link Status Command String\");\n    return null;\n}\n\nlet source = row[\"Source Address ZigBee\"];\n\nif (!source || !obj[\"Links\"]) {\n    return null;\n}\n\nlet links = obj[\"Links\"];\n\nlet costTable = flow.get(\"outgoing_cost_table\") || {};\n\nfor (let link of links) {\n    let destination = link[\"Address\"];\n    let cost = link[\"Outgoing Cost\"];\n\n    let key = source + \"_\" + destination;\n\n    costTable[key] = {\n        source: source,\n        destination: destination,\n        cost: cost\n    };\n}\n\nflow.set(\"outgoing_cost_table\", costTable);\n\nreturn null;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 630,
+        "y": 780,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "1f6edd3b686d4e0b",
+        "type": "inject",
+        "z": "fec7735c63189767",
+        "name": "Export csv",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 200,
+        "y": 880,
+        "wires": [
+            [
+                "a6ad8aa2841ccede"
+            ]
+        ]
+    },
+    {
+        "id": "b1970ec7b563841f",
+        "type": "csv",
+        "z": "fec7735c63189767",
+        "name": "csv",
+        "spec": "rfc",
+        "sep": ",",
+        "hdrin": "",
+        "hdrout": "none",
+        "multi": "one",
+        "ret": "\\n",
+        "temp": "No.,Source,Destination,Cost",
+        "skip": "0",
+        "strings": true,
+        "include_empty_strings": "",
+        "include_null_values": "",
+        "x": 710,
+        "y": 880,
+        "wires": [
+            [
+                "b2de80054ad49f29"
+            ]
+        ]
+    },
+    {
+        "id": "a6ad8aa2841ccede",
+        "type": "function",
+        "z": "fec7735c63189767",
+        "name": "Export outgoing costs",
+        "func": "let table = flow.get(\"outgoing_cost_table\") || {};\nlet rows = Object.values(table);\n\nrows.sort((a, b) => {\n    let sa = parseInt(a.source, 16);\n    let sb = parseInt(b.source, 16);\n    if (sa !== sb) return sa - sb;\n\n    let da = parseInt(a.destination, 16);\n    let db = parseInt(b.destination, 16);\n    return da - db;\n});\n\nmsg.payload = rows.map((r, i) => ({\n    \"No.\": i + 1,\n    \"Source\": r.source,\n    \"Destination\": r.destination,\n    \"Cost\": r.cost\n}));\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 880,
+        "wires": [
+            [
+                "b1970ec7b563841f",
+                "90c5d42485c9ad6a"
+            ]
+        ]
+    },
+    {
+        "id": "b2de80054ad49f29",
+        "type": "file",
+        "z": "fec7735c63189767",
+        "name": "Write outgoing_cost.csv",
+        "filename": "/Users/rongh/Desktop/programming/year2_semester2/IOT/Challenges_2026/challenge3/outgoing_cost.csv",
+        "filenameType": "str",
+        "appendNewline": false,
+        "createDir": false,
+        "overwriteFile": "false",
+        "encoding": "none",
+        "x": 930,
+        "y": 880,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "90c5d42485c9ad6a",
+        "type": "function",
+        "z": "fec7735c63189767",
+        "name": "Select smallest source",
+        "func": "let rows = msg.payload;\n\nif (!rows || rows.length === 0) {\n    return null;\n}\n\nlet minSource = rows\n    .map(r => r.Source)\n    .sort((a, b) => parseInt(a, 16) - parseInt(b, 16))[0];\n\nlet selected = rows\n    .filter(r => r.Source === minSource)\n    .sort((a, b) => parseInt(a.Destination, 16) - parseInt(b.Destination, 16));\n\nmsg.payload = selected.map(r => ({\n    source: r.Source,\n    destination: r.Destination,\n    cost: r.Cost\n}));\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 760,
+        "y": 960,
+        "wires": [
+            [
+                "db202e71f7c32496"
+            ]
+        ]
+    },
+    {
+        "id": "db202e71f7c32496",
+        "type": "split",
+        "z": "fec7735c63189767",
+        "name": "",
+        "splt": "\\n",
+        "spltType": "str",
+        "arraySplt": 1,
+        "arraySpltType": "len",
+        "stream": false,
+        "addname": "",
+        "property": "payload",
+        "x": 970,
+        "y": 960,
+        "wires": [
+            [
+                "f8f0474719b38841"
+            ]
+        ]
+    },
+    {
+        "id": "f8f0474719b38841",
+        "type": "delay",
+        "z": "fec7735c63189767",
+        "name": "ThingSpeak 20s delay",
+        "pauseType": "rate",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "20",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 1180,
+        "y": 960,
+        "wires": [
+            [
+                "88904eafd44d6eb4"
+            ]
+        ]
+    },
+    {
+        "id": "88904eafd44d6eb4",
+        "type": "function",
+        "z": "fec7735c63189767",
+        "name": "Build URL",
+        "func": "let apiKey = \"OTQ4BUDT3GF3SWNG\";\n\nmsg.method = \"GET\";\n\nmsg.url =\n    \"https://api.thingspeak.com/update?api_key=\" +\n    apiKey +\n    \"&field1=\" +\n    msg.payload.cost;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 1380,
+        "y": 960,
+        "wires": [
+            [
+                "19e6d9da33a4163b"
+            ]
+        ]
+    },
+    {
+        "id": "19e6d9da33a4163b",
+        "type": "http request",
+        "z": "fec7735c63189767",
+        "name": "Send to ThingSpeak",
+        "method": "use",
+        "ret": "obj",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 1580,
+        "y": 960,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "9099c49963dc34ba",
+        "type": "debug",
+        "z": "fec7735c63189767",
+        "name": "debug 2",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 1280,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "2ed18e4fb28673fb",
+        "type": "mqtt-broker",
+        "name": "",
+        "broker": "127.0.0.1",
+        "port": "1884",
+        "clientid": "",
+        "autoConnect": true,
+        "usetls": false,
+        "protocolVersion": 4,
+        "keepalive": 60,
+        "cleansession": true,
+        "autoUnsubscribe": true,
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthRetain": "false",
+        "birthPayload": "",
+        "birthMsg": {},
+        "closeTopic": "",
+        "closeQos": "0",
+        "closeRetain": "false",
+        "closePayload": "",
+        "closeMsg": {},
+        "willTopic": "",
+        "willQos": "0",
+        "willRetain": "false",
+        "willPayload": "",
+        "willMsg": {},
+        "userProps": "",
+        "sessionExpiry": ""
+    },
+    {
+        "id": "8edb1376f7621b83",
+        "type": "ui_group",
+        "name": "Measurements",
+        "tab": "1792e4a3515bcd7d",
+        "order": 1,
+        "disp": true,
+        "width": 6,
+        "collapse": false,
+        "className": ""
+    },
+    {
+        "id": "1792e4a3515bcd7d",
+        "type": "ui_tab",
+        "name": "Challenge3",
+        "icon": "dashboard",
+        "disabled": false,
+        "hidden": false
+    },
+    {
+        "id": "d03ad56e1f2727b6",
+        "type": "global-config",
+        "env": [],
+        "modules": {
+            "node-red-dashboard": "3.6.6"
+        }
+    }
+]
